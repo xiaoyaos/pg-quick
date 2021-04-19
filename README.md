@@ -144,3 +144,44 @@ return build sql, is not require call .query()
 ```js
 await pgq('tablename').select('field1', 'field2', 'field3').toSql();
 ```
+
+# TRANSACTIONS
+``` js
+const Pgq = require('pg-quick');
+const pgq = new Pgq({
+    "host": "",
+    "port": 5432,
+    "user": "",
+    "password": "",
+    "database": "database",
+    "max": 500
+});
+
+(async () => {
+    const trx = pgq.transaction();
+    // INSERT
+    var rows = await pgq('tablename').transacting(trx).insert({
+        domain_id: 999,
+        merchant_name: 'ceshi'
+    }).query()
+    // UPDATE
+    rows = await pgq('tablename').transacting(trx).update().where({
+        a: 1
+    }).where('b', 2).where('c', '>', 3).query()
+    console.log(rows)
+    // DELETE
+    rows = await pgq('tablename').transacting(trx).update({
+        merchant_name: 999
+    }).where({
+        a: 1
+    }).where('b', 'as').where('c', '>', 3).orderBy("a").query()
+    console.log(rows)
+
+    trx.commit();// or trx.rollback();
+})()
+```
+## transaction
+创建化一个事务对象，在后续指定的sql查询中注入该事务对象，这本次sql查询会挂载到此事务上，只有rollback或者commit才会产生最终结果并释放该事务对应的client
+
+## transacting
+该方法为给指定sql查询挂载指定事务对象，被挂载的sql查询隶属于此事务

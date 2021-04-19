@@ -8,15 +8,22 @@ const pgq = new Pgq({
   "max":500
 });
 (async ()=>{
-  let rows =  await pgq('tb_merchant_list').query();
-  console.log(rows)
-  // fs.unlinkSync('./a.json');
-  // fs.writeFileSync('./a.json', JSON.stringify(tree))
-  // add
-  // var rows = await pgq('tb_merchant_list').insert({domain_id:999,merchant_name:'ceshi'}).toSql()
-  // //delete 
-  // rows =  await pgq('tb_merchant_list').update().where({a:1}).where('b',2).where('c', '>', 3).toSql()
+  // let rows =  await pgq('tb_merchant_list').query();
   // console.log(rows)
+  const trx = await pgq.transaction();
+  
+  // add
+  // var rows = await pgq('tb_merchant_list')
+  // // .transacting(trx)
+  // .insert({domain_id:100,merchant_name:'ceshi'}).query()
+  // console.log(rows)
+  // //delete 
+  rows =  await pgq('tb_merchant_list').transacting(trx).update({merchant_name:"666"}).where({id:46}).query()
+  rows =  await pgq('tb_merchant_list').update({merchant_name:"666"}).where({id:55}).query()
+  rows =  await pgq('tb_merchant_list').transacting(trx).remove({id:56}).query()
+  setTimeout(()=>{
+    trx.commit();
+  },5000)
   //
   // rows =  await pgq('tb_merchant_list').update({merchant_name:999}).where({a:1}).where('b','as').where('c', '>', 3).orderBy("a").toSql()
   // console.log(rows)
