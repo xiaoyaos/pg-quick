@@ -19,10 +19,13 @@ const pgq = new Pgq({
   // console.log(rows)
   // //delete 
   rows = await pgq('student').transacting(trx).select("id", "name")
+  // .join('classs', 'student.id', 'classs.s_id')
+  // .innerJoin('classs', 'student.id', 'classs.s_id')
   // .leftJoin('classs', 'student.id', 'classs.s_id')
-  .rightJoin('dorm',function(){
-    this.on('dorm.s_id','=', 'student.id').on('dorm.s_id0','=', 'student.id0')
-  })
+  // .rightJoin('classs', 'student.id', 'classs.s_id')
+  // .rightJoin('dorm',function(){
+  //   this.on('dorm.s_id','=', 'student.id').on('dorm.s_id0', 'student.id0')
+  // })
   .leftJoin('classs',function(){
     this.on(function(){
       this.on('classs.s_id4','student.id4').andOn('classs.s_id1','=', 'student.id1')

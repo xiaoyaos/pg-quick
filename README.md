@@ -144,6 +144,38 @@ return build sql, is not require call .query()
 ```js
 await pgq('tablename').select('field1', 'field2', 'field3').toSql();
 ```
+# JOIN
+left、inner、right
+## .join、.leftJoin、.innerJoin、.rightJoin
+## .on、.orON、andOn
+```js
+await pgq('student').transacting(trx).select("id", "name")
+    // simple join
+  .leftJoin('classs', 'student.id', 'classs.s_id')
+  .innerJoin('classs', 'student.id', 'classs.s_id')
+  .leftJoin('classs', 'student.id', 'classs.s_id')
+  .rightJoin('classs', 'student.id', 'classs.s_id')
+// raw sql: inner JOIN classs  ON classs = student.id inner JOIN classs  ON classs = student.id left JOIN classs  ON classs = student.id right JOIN classs  ON classs = student.id
+
+// callback is on
+  .rightJoin('dorm',function(){
+    this.on('dorm.s_id','=', 'student.id').on('dorm.s_id0', 'student.id0')
+  })
+// raw sql:right JOIN dorm  ON dorm.s_id = student.id AND dorm.s_id0 = student.id0
+
+// second callbacl on  目前只支持二级回调，也就是on方法里面只允许一级回调，二级回调无法正常运行
+  .leftJoin('classs',function(){
+    this.on(function(){
+      this.on('classs.s_id4','student.id4').andOn('classs.s_id1','=', 'student.id1')
+    }).andOn(function(){
+      this.on('classs.s_id2','student.id2').orOn('classs.s_id3','=', 'student.id3')
+    }).orOn(function(){
+      this.on('classs.s_id5','student.id5').orOn('classs.s_id6','=', 'student.id6')
+    })
+  })
+// raw sql: left JOIN classs  ON (  classs.s_id4 = student.id4 AND classs.s_id1 = student.id1) AND (  classs.s_id2 = student.id2 OR classs.s_id3 = student.id3) OR (  classs.s_id5 = student.id5 OR classs.s_id6 = student.id6)
+
+```
 
 # TRANSACTIONS
 ``` js
